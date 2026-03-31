@@ -5,7 +5,7 @@ import { useRequest} from './custom hooks/useRequest'
 
 export function App() {
 
-  const {getRequest, todos, page, title, addTodo, updateTodo, removeTodo, changeTitle, newPage} = useRequest()
+  const {todos, page, title, getRequest, addTodo, updateTodo, removeTodo, changeTitle, newPage} = useRequest('https://jsonplaceholder.typicode.com', `/todos?_limit=20&_page=`)
 
 
   useEffect(() => {
