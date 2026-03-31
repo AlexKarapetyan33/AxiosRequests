@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 
-
+const instance = axios.create({
+  baseURL : 'https://jsonplaceholder.typicode.com'
+})
 
 export function App() {
 
   const [title, setTitle] = useState('')
   const [todos, setTodos] = useState([])
   const [page, setPage] = useState(1)
+
   useEffect(() => {
-    fetch(`https://jsonplaceholder.typicode.com/todos?_limit=20&_page=${page}`)
-      .then((res) => res.json())
-      .then((res) => setTodos(res))
+
+    instance.get(`/todos?_limit=20&_page=${page}`)
+    .then((res) => setTodos(res.data))
+   
   }, [page])
 
   const changeTitle = (e) => {
@@ -18,56 +23,45 @@ export function App() {
   }
 
   const addTodo = () => {
-    fetch('https://jsonplaceholder.typicode.com/todos', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        title,
-        completed: false
-      })
-    }).then((res) => res.json())
-      .then((res) => setTodos([res, ...todos]))
+
+    instance.post('/todos', {title, complated : false})
+    .then((res) => setTodos([res.data, ...todos]))
   }
 
   const removeTodo = (id) => {
-      fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-        method : 'DELETE'
-      }).then((res) => {
-        setTodos(todos.filter((todo) => todo.id !== id))
-      })
+   instance.delete(`/todos/${id}`)
+   .then((res) => {
+    setTodos(todos.filter((todo) => todo.id !== id))
+   })
   }
 
   const updateTodo = (id, completed) => {
-    fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-      method : 'PATCH',
-      headers : {'content-type' : 'application/json'},
-      body : JSON.stringify({completed : !completed})
-    }).then((res) => res.json())
+
+    instance.patch(`/todos/${id}`, { completed: !completed })
     .then((res) => {
       setTodos(todos.map((todo) => {
         if(todo.id === id){
-          return {...res}
-        }else{
+          return {...res.data}
+        }else {
           return todo
         }
       }))
     })
+
   }
-  
-const datatLength = 200
-let pageCount = Math.ceil(datatLength / 20)
-let arr = []
 
-for(let i = 1; i <= pageCount; i++){
-  arr.push(i)
-}
+  const datatLength = 200
+  let pageCount = Math.ceil(datatLength / 20)
+  let arr = []
+
+  for (let i = 1; i <= pageCount; i++) {
+    arr.push(i)
+  }
 
 
-const newPage = (p) => {
-  setPage(p)
-}
+  const newPage = (p) => {
+    setPage(p)
+  }
 
   return (
     <>
@@ -76,7 +70,7 @@ const newPage = (p) => {
       {
         arr.map((el) => {
           return <button onClick={() => newPage(el)}
-           key={el}>{el}</button>
+            key={el}>{el}</button>
         })
       }
       <ul>
@@ -85,7 +79,7 @@ const newPage = (p) => {
             return (
               <li key={todo.id}>
                 <b>{todo.id}</b>
-                <input type={"checkbox"} checked={todo.completed} onChange={() => updateTodo(todo.id, todo.completed)} />
+                <input type={"checkbox"} checked={todo.completed} onChange={() => updateTodo(todo.id, todo.completed)}/>
                 <span>{todo.title}</span>
                 <button onClick={() => removeTodo(todo.id)}>X</button>
               </li>
