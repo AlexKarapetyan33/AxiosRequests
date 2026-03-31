@@ -3,7 +3,7 @@ import { useState } from "react"
 
 
 
-export const useRequest = (requestApi, getParams) => {
+export const useRequest = (requestApi, endPoint) => {
   const instance = axios.create({
     baseURL: requestApi.toString()
   })
@@ -15,7 +15,7 @@ export const useRequest = (requestApi, getParams) => {
 
 
   const getRequest = () => {
-    instance.get(getParams.toString() + page)
+    instance.get(`${endPoint}?_limit=20&_page=${page}`)
       .then((res) => setTodos(res.data))
   }
 
